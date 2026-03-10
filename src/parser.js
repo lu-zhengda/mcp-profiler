@@ -138,6 +138,18 @@ export async function extractRegisteredTools(filePath) {
         if (block?.type === 'tool_use' && block.name?.startsWith(MCP_PREFIX)) {
           registered.add(block.name);
         }
+        // 3. Check text blocks that contain deferred tool listings
+        //    (system-inserted content, always has uncorrupted tool names)
+        if (
+          block?.type === 'text' &&
+          typeof block.text === 'string' &&
+          block.text.includes(MCP_PREFIX) &&
+          block.text.includes('available-deferred-tools')
+        ) {
+          for (const match of block.text.matchAll(mcpPattern)) {
+            registered.add(match[0]);
+          }
+        }
       }
     }
   }

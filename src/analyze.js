@@ -9,15 +9,42 @@ import { loadConfigServers } from './config.js';
 import { printUsageTable, printNeverCalled, printConfigDiff, printSummary } from './format.js';
 
 /**
- * Deduplicate tool names: remove truncated names that are prefixes of full names.
- * Handles ANSI line-wrap truncation in terminal output stored in logs.
+ * Check if two tool names are similar enough to be the same tool
+ * (one is a corrupted version of the other due to ANSI line wrapping).
+ * Same server prefix + nearly identical length + high prefix overlap.
+ */
+function isSimilarToolName(shorter, longer) {
+  // Must share the same server prefix (everything before the last __)
+  const shorterServer = shorter.slice(0, shorter.lastIndexOf('__'));
+  const longerServer = longer.slice(0, longer.lastIndexOf('__'));
+  if (shorterServer !== longerServer) return false;
+
+  const shorterTool = shorter.slice(shorter.lastIndexOf('__') + 2);
+  const longerTool = longer.slice(longer.lastIndexOf('__') + 2);
+
+  // Length must be very close (within 3 chars — line-wrap corruption is minor)
+  const lengthDiff = longerTool.length - shorterTool.length;
+  if (lengthDiff <= 0 || lengthDiff > 3) return false;
+
+  // Must share at least 85% of the shorter tool name as a prefix
+  const minOverlap = Math.floor(shorterTool.length * 0.85);
+  const commonPrefix = longerTool.slice(0, minOverlap);
+  return shorterTool.startsWith(commonPrefix);
+}
+
+/**
+ * Deduplicate tool names: remove truncated/corrupted names that are
+ * likely the same tool as a longer, cleaner name.
+ * Handles ANSI line-wrap corruption in terminal output stored in logs.
  */
 function deduplicateToolNames(names) {
   const sorted = [...names].sort((a, b) => b.length - a.length);
   const result = new Set();
   for (const name of sorted) {
-    const isPrefix = [...result].some((longer) => longer.startsWith(name) && longer !== name);
-    if (!isPrefix) {
+    const isDuplicate = [...result].some(
+      (longer) => longer.startsWith(name) || isSimilarToolName(name, longer),
+    );
+    if (!isDuplicate) {
       result.add(name);
     }
   }
