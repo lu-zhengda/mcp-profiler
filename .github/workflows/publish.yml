@@ -12,7 +12,6 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: npm-publish
     steps:
       - uses: actions/checkout@v4
 
@@ -21,19 +20,4 @@ jobs:
           node-version: '20'
           registry-url: https://registry.npmjs.org
 
-      - name: Get OIDC token + decode claims
-        id: oidc
-        run: |
-          TOKEN=$(curl -fsSL \
-            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npmjs" | jq -r '.value')
-          # Decode JWT payload (no signature verification needed, just inspect claims)
-          PAYLOAD=$(echo "$TOKEN" | cut -d'.' -f2 | base64 -d 2>/dev/null || echo "$TOKEN" | cut -d'.' -f2 | base64 --decode 2>/dev/null)
-          echo "=== OIDC token claims ==="
-          echo "$PAYLOAD" | jq '{sub, iss, aud, repository, environment, workflow, workflow_ref, ref, ref_type, job_workflow_ref}'
-          echo "========================="
-          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
-
       - run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ steps.oidc.outputs.token }}
