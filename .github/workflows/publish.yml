@@ -19,11 +19,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # No registry-url here — setup-node would write an _authToken into
-          # .npmrc which takes precedence over OIDC Trusted Publisher auth.
-
-      - name: Configure npm registry (no token)
-        run: npm config set registry https://registry.npmjs.org
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Verify package version matches release tag
         run: |
@@ -36,6 +32,9 @@ jobs:
           echo "✅ Version matches: $PKG_VERSION"
 
       - name: Publish with provenance (OIDC Trusted Publisher)
-        # --provenance exchanges the GitHub OIDC token with npm for auth.
-        # No NPM_TOKEN secret is needed when Trusted Publisher is configured.
+        # NODE_AUTH_TOKEN is intentionally empty — this causes npm to fall
+        # through to OIDC Trusted Publisher authentication using the GitHub
+        # ID token (id-token: write permission above).
         run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ""
