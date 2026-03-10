@@ -1,0 +1,40 @@
+{
+  "name": "mcp-profiler",
+  "version": "0.1.0",
+  "description": "Find out which MCP tools you actually use in Claude Code, kill the ones you don't",
+  "type": "module",
+  "bin": {
+    "mcp-profiler": "./bin/cli.js"
+  },
+  "license": "MIT",
+  "scripts": {
+    "start": "node bin/cli.js",
+    "test": "node --test test/"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "mcp",
+    "model-context-protocol",
+    "profiler",
+    "cli"
+  ],
+  "author": "Zhengda Lu",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lu-zhengda/mcp-profiler"
+  },
+  "homepage": "https://github.com/lu-zhengda/mcp-profiler",
+  "bugs": {
+    "url": "https://github.com/lu-zhengda/mcp-profiler/issues"
+  }
+}
