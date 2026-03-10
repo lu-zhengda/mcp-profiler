@@ -1,6 +1,6 @@
 {
   "name": "mcp-profiler",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Find out which MCP tools you actually use in Claude Code, kill the ones you don't",
   "type": "module",
   "bin": {
