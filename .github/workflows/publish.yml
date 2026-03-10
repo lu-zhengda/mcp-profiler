@@ -21,6 +21,15 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Remove _authToken from npmrc (enable OIDC Trusted Publisher)
+        # setup-node writes `_authToken=${NODE_AUTH_TOKEN}` to the npmrc.
+        # An empty/missing _authToken line causes ENEEDAUTH; removing the
+        # line entirely allows npm to fall through to OIDC Trusted Publisher.
+        run: |
+          sed -i '/^\/\/registry.npmjs.org\/:_authToken/d' "$NPM_CONFIG_USERCONFIG"
+          echo "npmrc after cleanup:"
+          cat "$NPM_CONFIG_USERCONFIG"
+
       - name: Verify package version matches release tag
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
@@ -32,9 +41,4 @@ jobs:
           echo "✅ Version matches: $PKG_VERSION"
 
       - name: Publish with provenance (OIDC Trusted Publisher)
-        # NODE_AUTH_TOKEN is intentionally empty — this causes npm to fall
-        # through to OIDC Trusted Publisher authentication using the GitHub
-        # ID token (id-token: write permission above).
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ""
