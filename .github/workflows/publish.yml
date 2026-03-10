@@ -21,4 +21,14 @@ jobs:
           node-version: '20'
           registry-url: https://registry.npmjs.org
 
-      - run: npm publish --access public
+      - name: Get OIDC token
+        id: oidc
+        run: |
+          TOKEN=$(curl -fsSL \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npmjs" | jq -r '.value')
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.oidc.outputs.token }}
