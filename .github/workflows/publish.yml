@@ -12,19 +12,13 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: npm-publish
+    environment: release
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Publish via OIDC Trusted Publisher
-        # NODE_AUTH_TOKEN must be non-empty to pass npm CLI's pre-flight check.
-        # The actual auth is done by the registry validating the OIDC provenance
-        # attestation against the Trusted Publisher config - Bearer token is ignored.
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: oidc-trusted-publisher
+      - run: npm test
+      - run: npm publish
