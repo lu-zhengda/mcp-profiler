@@ -1,6 +1,6 @@
 {
   "name": "mcp-profiler",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Find out which MCP tools you actually use in Claude Code, kill the ones you don't",
   "type": "module",
   "bin": {
@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node bin/cli.js",
-    "test": "node --test test/"
+    "test": "node --test 'test/*.test.js'"
   },
   "files": [
     "bin/",
