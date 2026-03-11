@@ -12,12 +12,16 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment: npm-publish
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
           registry-url: https://registry.npmjs.org
 
-      - run: npm publish --access public
+      - name: Clear setup-node token so OIDC Trusted Publisher can take over
+        run: sed -i '/^\/\/registry.npmjs.org\/:_authToken/d' "$NPM_CONFIG_USERCONFIG"
+
+      - run: npm publish --access public --provenance
