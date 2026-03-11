@@ -21,7 +21,10 @@ jobs:
           node-version: '20'
           registry-url: https://registry.npmjs.org
 
-      - name: Clear setup-node token so OIDC Trusted Publisher can take over
-        run: sed -i '/^\/\/registry.npmjs.org\/:_authToken/d' "$NPM_CONFIG_USERCONFIG"
-
-      - run: npm publish --access public --provenance
+      - name: Publish via OIDC Trusted Publisher
+        # NODE_AUTH_TOKEN must be non-empty to pass npm CLI's pre-flight check.
+        # The actual auth is done by the registry validating the OIDC provenance
+        # attestation against the Trusted Publisher config - Bearer token is ignored.
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: oidc-trusted-publisher
